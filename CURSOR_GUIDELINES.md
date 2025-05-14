@@ -92,3 +92,11 @@ This keeps AI agents and new developers informed about the current state of the 
 - Document any new environment variables or configuration options
 - Keep sensitive information out of the codebase
 - Utilize the Render PostgreSQL database with the provided credentials 
+
+### 7. External Asset Attribution
+
+- When using external assets (libraries, images, code snippets, etc.), add appropriate attribution in code comments
+- Include basic information like asset name, creator, license, and source when available
+- These credits should NOT be displayed in the UI or included in API responses
+- Attribution comments are for development purposes only
+- This is a guideline for Cursor to keep in mind while developing, not a strict implementation requirement 

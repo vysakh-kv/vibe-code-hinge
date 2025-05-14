@@ -9,6 +9,12 @@ const VerifyOtp = () => import('../views/verify-otp.vue');
 const Welcome = () => import('../views/welcome.vue');
 const InputName = () => import('../views/input-name.vue');
 const InputEmail = () => import('../views/input-email.vue');
+const InputHometown = () => import('../views/input-hometown.vue');
+const InputWork = () => import('../views/input-work.vue');
+const InputDrink = () => import('../views/input-drink.vue');
+const InputSmoke = () => import('../views/input-smoke.vue');
+const InputPhotos = () => import('../views/input-photos.vue');
+const InputPrompt = () => import('../views/input-prompt.vue');
 // const Register = () => import('../views/Register.vue');
 // const Onboarding = () => import('../views/Onboarding.vue');
 // const Discover = () => import('../views/Discover.vue');
@@ -64,6 +70,42 @@ const routes = [
     path: '/input-email',
     name: 'InputEmail',
     component: InputEmail,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/input-hometown',
+    name: 'InputHometown',
+    component: InputHometown,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/input-work',
+    name: 'InputWork',
+    component: InputWork,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/input-drink',
+    name: 'InputDrink',
+    component: InputDrink,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/input-smoke',
+    name: 'InputSmoke',
+    component: InputSmoke,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/input-photos',
+    name: 'InputPhotos',
+    component: InputPhotos,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/input-prompt',
+    name: 'InputPrompt',
+    component: InputPrompt,
     meta: { requiresAuth: false }
   },
   // {

@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"github.com/vibe-code-hinge/backend/internal/handlers"
+	"github.com/vibe-code-hinge/backend/internal/routes"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	// Database connection
 	var dbURL string
 	dbURL = os.Getenv("DATABASE_URL")
-	
+
 	// If DATABASE_URL is not set, build it from individual parameters
 	if dbURL == "" {
 		dbUser := os.Getenv("DB_USER")
@@ -32,23 +32,23 @@ func main() {
 		dbName := os.Getenv("DB_NAME")
 		dbPort := os.Getenv("DB_PORT")
 		dbSSLMode := os.Getenv("DB_SSL_MODE")
-		
+
 		if dbUser == "" || dbPassword == "" || dbHost == "" || dbName == "" {
 			log.Fatal("Database connection parameters are not set properly")
 		}
-		
+
 		if dbPort == "" {
 			dbPort = "5432" // Default PostgreSQL port
 		}
-		
+
 		if dbSSLMode == "" {
 			dbSSLMode = "require" // Default to require SSL
 		}
-		
-		dbURL = fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s", 
+
+		dbURL = fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
 			dbUser, dbPassword, dbHost, dbPort, dbName, dbSSLMode)
 	}
-	
+
 	if dbURL == "" {
 		log.Fatal("DATABASE_URL or individual database parameters must be set")
 	}
@@ -67,20 +67,13 @@ func main() {
 
 	// Initialize router
 	router := mux.NewRouter()
-	
+
 	// Middleware for CORS
 	router.Use(corsMiddleware)
 
-	// Health check endpoint
-	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
-	}).Methods("GET")
-
 	// API routes
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
-	handlers.RegisterRoutes(apiRouter, db)
+	routes.SetupRoutes(apiRouter, db)
 
 	// Start server
 	port := os.Getenv("PORT")
@@ -116,4 +109,4 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
-} 
+}

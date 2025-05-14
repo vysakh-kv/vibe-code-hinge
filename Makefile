@@ -1,4 +1,7 @@
-.PHONY: setup start start-backend start-frontend build migrate-up migrate-down test help docker-up docker-down docker-logs docker-migrate setup-env update-context
+.PHONY: setup start start-backend start-frontend build migrate-up migrate-down test help docker-up docker-down docker-logs docker-migrate setup-env update-context backend-logs clean-logs start-backend-debug
+
+# Variables
+LOG_LEVEL ?= info
 
 # Default target
 all: help
@@ -37,13 +40,18 @@ setup-env:
 	@echo "PORT=8080" >> backend/.env
 	@echo "" >> backend/.env
 	@echo "# Supabase" >> backend/.env
-	@echo "SUPABASE_URL=" >> backend/.env
-	@echo "SUPABASE_KEY=" >> backend/.env
+	@echo "SUPABASE_URL=https://asydpwsbayeejyhkxeih.supabase.co" >> backend/.env
+	@echo "SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzeWRwd3NiYXllZWp5aGt4ZWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyMjA3OTcsImV4cCI6MjA2Mjc5Njc5N30.dcUCQM2poNFWdlEaQTjNPKNq2eNt-hsq-s1Rx_gUZsM" >> backend/.env
 	@echo "" >> backend/.env
 	@echo "# JWT" >> backend/.env
 	@echo "JWT_SECRET=your_jwt_secret_here" >> backend/.env
 	@echo "JWT_EXPIRY=24h" >> backend/.env
 	@echo "Environment file created successfully with Render PostgreSQL credentials."
+	@echo "Setting up frontend environment variables..."
+	@echo "VITE_API_URL=http://localhost:8080/api/v1" > frontend/.env
+	@echo "VITE_SUPABASE_URL=https://asydpwsbayeejyhkxeih.supabase.co" >> frontend/.env
+	@echo "VITE_SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzeWRwd3NiYXllZWp5aGt4ZWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyMjA3OTcsImV4cCI6MjA2Mjc5Njc5N30.dcUCQM2poNFWdlEaQTjNPKNq2eNt-hsq-s1Rx_gUZsM" >> frontend/.env
+	@echo "Frontend environment file created successfully."
 
 # Remind to update LLM context file
 update-context:
@@ -65,8 +73,12 @@ update-context:
 start: start-backend start-frontend
 
 start-backend:
-	@echo "Starting backend server..."
-	cd backend && go run cmd/api/main.go
+	@echo "Setting up logs directory..."
+	@mkdir -p logs
+	@echo "Starting backend server with LOG_LEVEL=$(LOG_LEVEL)..."
+	@cd backend && LOG_LEVEL=$(LOG_LEVEL) go run cmd/api/main.go 2>&1 | tee ../logs/backend.log &
+	@echo "Backend server started in background. Logs available in logs/backend.log"
+	@echo "Run 'make backend-logs' to follow logs in real-time"
 
 start-frontend:
 	@echo "Starting frontend development server..."
@@ -122,27 +134,46 @@ docker-migrate:
 	@echo "Running database migrations in Docker..."
 	docker-compose exec backend go run cmd/migrate/main.go up
 
+# View backend logs
+backend-logs:
+	@echo "Viewing backend logs in real-time..."
+	@tail -f logs/backend.log
+
 # Show help
 help:
 	@echo "Available commands:"
-	@echo "  make setup           - Set up the project (both backend and frontend)"
-	@echo "  make setup-backend   - Set up the backend only"
-	@echo "  make setup-frontend  - Set up the frontend only"
-	@echo "  make setup-env       - Set up environment with Render PostgreSQL credentials"
-	@echo "  make update-context  - Reminder to update the LLM context file after changes"
-	@echo "  make start           - Start both backend and frontend development servers"
-	@echo "  make start-backend   - Start the backend server only"
-	@echo "  make start-frontend  - Start the frontend server only"
-	@echo "  make build           - Build both backend and frontend for production"
-	@echo "  make build-backend   - Build the backend only"
-	@echo "  make build-frontend  - Build the frontend only"
-	@echo "  make migrate-up      - Run database migrations up"
-	@echo "  make migrate-down    - Run database migrations down"
-	@echo "  make test            - Run all tests"
-	@echo "  make test-backend    - Run backend tests only"
-	@echo "  make test-frontend   - Run frontend tests only"
-	@echo "  make docker-up       - Start all services with Docker Compose"
-	@echo "  make docker-down     - Stop all services with Docker Compose"
-	@echo "  make docker-logs     - Show logs from all services"
-	@echo "  make docker-migrate  - Run database migrations in Docker"
-	@echo "  make help            - Show this help message" 
+	@echo "  make setup                - Set up the project (both backend and frontend)"
+	@echo "  make setup-backend        - Set up the backend only"
+	@echo "  make setup-frontend       - Set up the frontend only"
+	@echo "  make setup-env            - Set up environment with Render PostgreSQL credentials"
+	@echo "  make update-context       - Reminder to update the LLM context file after changes"
+	@echo "  make start                - Start both backend and frontend development servers"
+	@echo "  make start-backend        - Start the backend server only"
+	@echo "  make start-backend-debug  - Start the backend server with DEBUG logging"
+	@echo "  make start-frontend       - Start the frontend server only"
+	@echo "  make build                - Build both backend and frontend for production"
+	@echo "  make build-backend        - Build the backend only"
+	@echo "  make build-frontend       - Build the frontend only"
+	@echo "  make migrate-up           - Run database migrations up"
+	@echo "  make migrate-down         - Run database migrations down"
+	@echo "  make test                 - Run all tests"
+	@echo "  make test-backend         - Run backend tests only"
+	@echo "  make test-frontend        - Run frontend tests only"
+	@echo "  make docker-up            - Start all services with Docker Compose"
+	@echo "  make docker-down          - Stop all services with Docker Compose"
+	@echo "  make docker-logs          - Show logs from all services"
+	@echo "  make docker-migrate       - Run database migrations in Docker"
+	@echo "  make backend-logs         - View backend logs in real-time"
+	@echo "  make clean-logs           - Remove all log files"
+	@echo "  make help                 - Show this help message"
+
+# Clean log files
+clean-logs:
+	@echo "Cleaning log files..."
+	@rm -rf logs
+	@echo "Log files removed."
+
+# Start backend with debug logging
+start-backend-debug:
+	@make start-backend LOG_LEVEL=debug
+	@echo "Backend started with DEBUG log level" 

@@ -3,6 +3,27 @@
 ## Project Overview
 Vibe is a Hinge-inspired dating app MVP built with Go backend and Vue.js frontend. The project aims to implement the core features of a dating app including user authentication, profile management, matching, and messaging.
 
+## Hackathon Context
+This project is being built for the VibeCoding Hackathon (May 14, 2025, 4:00-8:00 PM). We are currently past the first hour of the 4-hour time limit. The challenge is to clone an existing product (Hinge in our case) with a focus on functionality, user interface, and speed of execution.
+
+### Hackathon Requirements
+- 4-hour time limit
+- Submission needs: GitHub repo, README.md, 5-minute demo video
+- Judging based on resemblance to original product and implementation efficiency
+
+### Current Progress
+- Repository setup with Go backend and Vue frontend
+- Database integration with Render PostgreSQL
+- Basic project structure and environment configuration complete
+- Authentication framework in place
+
+### Remaining Priorities
+1. Complete profile features
+2. Implement discovery/swiping
+3. Build matching system
+4. Add basic messaging if time permits
+5. Polish UI/UX and prepare submission
+
 ## Tech Stack
 - **Backend**: Go with Gorilla Mux, PostgreSQL database
 - **Frontend**: Vue 3, Vue Router, Pinia, Vite
@@ -96,6 +117,7 @@ When using Cursor with this project, follow these guidelines:
 7. **Consider performance** - Pay attention to potential performance impacts of your changes
 8. **Mobile-first approach** - Ensure all UI changes work well on mobile devices
 9. **Keep this context file updated** - When making significant changes to the project, update this file accordingly
+10. **External asset attribution** - External assets should be credited in code comments, but these credits should not appear in UI or API responses
 
 ## Maintaining This Context File
 This context file should be regularly updated to reflect the current state of the project. When making significant changes, please:

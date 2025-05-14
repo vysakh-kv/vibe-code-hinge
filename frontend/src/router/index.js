@@ -4,6 +4,11 @@ import { createRouter, createWebHistory } from 'vue-router';
 const Home = () => import('../views/Home.vue');
 const Login = () => import('../views/Login.vue');
 const Register = () => import('../views/Register.vue');
+const EnterPhNumber = () => import('../views/EnterPhNumber.vue');
+const VerifyOtp = () => import('../views/verify-otp.vue');
+const Welcome = () => import('../views/welcome.vue');
+const InputName = () => import('../views/input-name.vue');
+const InputEmail = () => import('../views/input-email.vue');
 // const Register = () => import('../views/Register.vue');
 // const Onboarding = () => import('../views/Onboarding.vue');
 // const Discover = () => import('../views/Discover.vue');
@@ -29,6 +34,36 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/enter-number',
+    name: 'EnterNumber',
+    component: EnterPhNumber,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/verify-otp',
+    name: 'VerifyOtp',
+    component: VerifyOtp,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/welcome',
+    name: 'Welcome',
+    component: Welcome,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/input-name',
+    name: 'InputName',
+    component: InputName,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/input-email',
+    name: 'InputEmail',
+    component: InputEmail,
     meta: { requiresAuth: false }
   },
   // {

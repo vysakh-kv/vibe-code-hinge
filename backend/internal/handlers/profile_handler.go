@@ -27,8 +27,8 @@ func NewProfileHandler(profileService *services.ProfileService) *ProfileHandler 
 // GetProfile handles the retrieval of a profile
 func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
+	id := vars["id"]
+	if id == "" {
 		respondWithError(w, http.StatusBadRequest, "Invalid profile ID")
 		return
 	}
@@ -46,8 +46,8 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 // UpdateProfile handles the update of a profile
 func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
+	id := vars["id"]
+	if id == "" {
 		respondWithError(w, http.StatusBadRequest, "Invalid profile ID")
 		return
 	}
@@ -70,7 +70,7 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call service to update profile
-	profile, err := h.profileService.CreateOrUpdateProfile(r.Context(), userID, input)
+	profile, err := h.profileService.CreateOrUpdateProfile(r.Context(), userID, &input)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return

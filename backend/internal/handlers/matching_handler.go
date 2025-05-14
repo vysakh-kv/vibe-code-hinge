@@ -26,15 +26,9 @@ func NewMatchingHandler(matchingService *services.MatchingService) *MatchingHand
 func (h *MatchingHandler) GetDiscoverProfiles(w http.ResponseWriter, r *http.Request) {
 	// Get user ID from context (would come from JWT middleware)
 	// For demonstration, we'll use a query parameter for now
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
 		respondWithError(w, http.StatusBadRequest, "User ID is required")
-		return
-	}
-
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
@@ -62,15 +56,9 @@ func (h *MatchingHandler) GetDiscoverProfiles(w http.ResponseWriter, r *http.Req
 func (h *MatchingHandler) CreateSwipe(w http.ResponseWriter, r *http.Request) {
 	// Get user ID from context (would come from JWT middleware)
 	// For demonstration, we'll use a query parameter for now
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
 		respondWithError(w, http.StatusBadRequest, "User ID is required")
-		return
-	}
-
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
@@ -82,7 +70,7 @@ func (h *MatchingHandler) CreateSwipe(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Validate input
-	if input.ProfileID <= 0 {
+	if input.ProfileID == "" {
 		respondWithError(w, http.StatusBadRequest, "Profile ID is required")
 		return
 	}
@@ -106,15 +94,9 @@ func (h *MatchingHandler) CreateSwipe(w http.ResponseWriter, r *http.Request) {
 func (h *MatchingHandler) GetMatches(w http.ResponseWriter, r *http.Request) {
 	// Get user ID from context (would come from JWT middleware)
 	// For demonstration, we'll use a query parameter for now
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
 		respondWithError(w, http.StatusBadRequest, "User ID is required")
-		return
-	}
-
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
@@ -132,22 +114,16 @@ func (h *MatchingHandler) GetMatches(w http.ResponseWriter, r *http.Request) {
 func (h *MatchingHandler) LikeProfile(w http.ResponseWriter, r *http.Request) {
 	// Get user ID from context (would come from JWT middleware)
 	// For demonstration, we'll use a query parameter for now
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
 		respondWithError(w, http.StatusBadRequest, "User ID is required")
-		return
-	}
-
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
 	// Get profile ID from URL path
 	vars := mux.Vars(r)
-	profileID, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
+	profileID := vars["id"]
+	if profileID == "" {
 		respondWithError(w, http.StatusBadRequest, "Invalid profile ID")
 		return
 	}
@@ -171,28 +147,22 @@ func (h *MatchingHandler) LikeProfile(w http.ResponseWriter, r *http.Request) {
 func (h *MatchingHandler) SkipProfile(w http.ResponseWriter, r *http.Request) {
 	// Get user ID from context (would come from JWT middleware)
 	// For demonstration, we'll use a query parameter for now
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
 		respondWithError(w, http.StatusBadRequest, "User ID is required")
-		return
-	}
-
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
 	// Get profile ID from URL path
 	vars := mux.Vars(r)
-	profileID, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
+	profileID := vars["id"]
+	if profileID == "" {
 		respondWithError(w, http.StatusBadRequest, "Invalid profile ID")
 		return
 	}
 
 	// Call service to create a skip
-	_, err = h.matchingService.CreateSwipe(r.Context(), userID, profileID, false)
+	_, err := h.matchingService.CreateSwipe(r.Context(), userID, profileID, false)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -205,22 +175,16 @@ func (h *MatchingHandler) SkipProfile(w http.ResponseWriter, r *http.Request) {
 func (h *MatchingHandler) SendRose(w http.ResponseWriter, r *http.Request) {
 	// Get user ID from context (would come from JWT middleware)
 	// For demonstration, we'll use a query parameter for now
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
 		respondWithError(w, http.StatusBadRequest, "User ID is required")
-		return
-	}
-
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
 	// Get profile ID from URL path
 	vars := mux.Vars(r)
-	profileID, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
+	profileID := vars["id"]
+	if profileID == "" {
 		respondWithError(w, http.StatusBadRequest, "Invalid profile ID")
 		return
 	}
@@ -245,15 +209,9 @@ func (h *MatchingHandler) SendRose(w http.ResponseWriter, r *http.Request) {
 func (h *MatchingHandler) GetLikes(w http.ResponseWriter, r *http.Request) {
 	// Get user ID from context (would come from JWT middleware)
 	// For demonstration, we'll use a query parameter for now
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
 		respondWithError(w, http.StatusBadRequest, "User ID is required")
-		return
-	}
-
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 

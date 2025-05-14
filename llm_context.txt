@@ -4,7 +4,7 @@
 Vibe is a Hinge-inspired dating app MVP built with Go backend and Vue.js frontend. The project aims to implement the core features of a dating app including user authentication, profile management, matching, and messaging.
 
 ## Hackathon Context
-This project is being built for the VibeCoding Hackathon (May 14, 2025, 4:00-8:00 PM). We are currently past the first hour of the 4-hour time limit. The challenge is to clone an existing product (Hinge in our case) with a focus on functionality, user interface, and speed of execution.
+This project is being built for the VibeCoding Hackathon (May 14, 2025, 4:00-8:00 PM). We are currently in the latter half of the 4-hour time limit. The challenge is to clone an existing product (Hinge in our case) with a focus on functionality, user interface, and speed of execution.
 
 ### Hackathon Requirements
 - 4-hour time limit
@@ -14,14 +14,22 @@ This project is being built for the VibeCoding Hackathon (May 14, 2025, 4:00-8:0
 ### Current Progress
 - Repository setup with Go backend and Vue frontend
 - Database integration with Render PostgreSQL
-- Basic project structure and environment configuration complete
-- Authentication framework in place
+- Full implementation of core backend services:
+  - Profile service with prompts and photos
+  - Feed service for discovery
+  - Match service for swipes and matches
+  - Message service for chat functionality
+  - Notification service with Server-Sent Events (SSE)
+  - Preference service for user dating preferences
+- HTTP utility functions for API response handling
+- Data models for profiles, matches, messages, preferences, prompts, etc.
+- Database migrations (with some issues to fix)
 
 ### Remaining Priorities
-1. Complete profile features
-2. Implement discovery/swiping
-3. Build matching system
-4. Add basic messaging if time permits
+1. Fix database migration issues (type mismatch between profiles.id and foreign keys)
+2. Complete API handlers for routes
+3. Implement frontend UI components
+4. Connect frontend to backend API
 5. Polish UI/UX and prepare submission
 
 ## Tech Stack
@@ -29,6 +37,7 @@ This project is being built for the VibeCoding Hackathon (May 14, 2025, 4:00-8:0
 - **Frontend**: Vue 3, Vue Router, Pinia, Vite
 - **Authentication & Storage**: Supabase
 - **Deployment**: Render (API + PostgreSQL)
+- **Real-time**: Server-Sent Events (SSE) for notifications and messages
 
 ## Project Structure
 - `/backend` - Go API server
@@ -36,10 +45,9 @@ This project is being built for the VibeCoding Hackathon (May 14, 2025, 4:00-8:0
   - `/cmd/migrate` - Database migration utilities
   - `/internal/handlers` - API request handlers
   - `/internal/models` - Data models
-  - `/internal/db` - Database access
-  - `/internal/middleware` - HTTP middleware
+  - `/internal/services` - Business logic services
+  - `/internal/utils` - Utility functions
   - `/migrations/postgres` - Database migration files
-  - `/configs` - Configuration files
   
 - `/frontend` - Vue.js application
   - `/src/views` - Vue pages
@@ -49,29 +57,83 @@ This project is being built for the VibeCoding Hackathon (May 14, 2025, 4:00-8:0
   - `/src/router` - Vue Router configuration
   - `/src/assets` - Static assets
 
+## Backend Architecture
+The backend follows a layered architecture:
+- **Handlers**: Process HTTP requests, validate inputs, and call services
+- **Services**: Implement business logic and interact with the database
+- **Models**: Define data structures for the application
+- **Utils**: Provide helper functions for common tasks
+
+Key services implemented:
+1. **BaseService**: Provides common database functionality for all services
+2. **ProfileService**: Manages user profiles, photos, and prompts
+3. **FeedService**: Handles the discovery feed and standout profiles
+4. **MatchService**: Manages swiping, matching, and conversations
+5. **MessageService**: Handles sending and retrieving messages
+6. **NotificationService**: Manages real-time notifications via SSE
+7. **PreferenceService**: Handles user dating preferences
+8. **PromptService**: Manages prompt templates and user responses
+
 ## Key Features Implemented
 - User authentication (login/register)
-- Basic routing setup
-- Database schema and migrations
-- Environment configuration
-- Integration with Render PostgreSQL database
-
-## Planned Features
-- User profile creation and editing
-- Discovery/swiping system
-- Matching algorithm
-- In-app messaging
-- User preferences
-- Profile photos
+- Profile creation and editing with photos and prompts
+- Discovery feed with filtering based on preferences
+- Swiping mechanism with match detection
+- Messaging between matched users
+- Real-time notifications
+- User preferences for dating filters
+- Standout profiles for premium features
 
 ## Database Schema
-- **users**: User authentication info
-- **profiles**: User profile details
-- **photos**: User profile photos
-- **matches**: Matched users
-- **swipes**: Record of swipes between users
-- **messages**: Messages between users
-- **user_preferences**: User matching preferences
+- **users**: User authentication info (id UUID, email, password_hash, etc.)
+- **profiles**: User profile details (id BIGINT, user_id UUID, name, bio, date_of_birth, gender, location, occupation, vices)
+- **photos**: User profile photos (id, profile_id, url, is_primary)
+- **prompts**: Prompt templates (id, text)
+- **profile_prompts**: User prompt responses (id, profile_id, prompt_id, answer)
+- **preferences**: User matching preferences (id, user_id, preferred_gender, min_age, max_age, max_distance)
+- **swipes**: Record of swipes (id, user_id, profile_id, is_like, message, is_rose)
+- **matches**: Matched users (id, user1_id, user2_id, created_at, last_message_at, user1_last_read, user2_last_read)
+- **messages**: Messages between users (id, match_id, sender_id, message, is_read)
+- **standouts**: Standout profile recommendations (id, user_id, profile_id, created_at, expires_at, is_active)
+- **notifications**: User notifications (id, user_id, type, target_id, message, is_read)
+
+**Note:** There is a mismatch between data types in the database schema. The profiles table uses UUID for the ID, but foreign keys are defined as BIGINT. This needs to be fixed in the migrations.
+
+## API Endpoints
+
+### Authentication
+- `POST /api/v1/auth/register`: Register a new user
+- `POST /api/v1/auth/login`: Login user
+
+### Profiles
+- `GET /api/v1/profiles/{id}`: Get a profile by ID
+- `PUT /api/v1/profiles/{id}`: Update a profile
+- `GET /api/v1/profiles/{id}/prompts`: Get profile prompts
+- `PUT /api/v1/profiles/{id}/prompts`: Update profile prompts
+
+### Feed and Discovery
+- `GET /api/v1/feed`: Get main feed profiles
+- `GET /api/v1/standouts`: Get standout profiles
+
+### Matching
+- `POST /api/v1/swipes`: Create a swipe (like or pass)
+- `GET /api/v1/matches`: Get all matches
+- `GET /api/v1/matches/{id}`: Get a specific match
+- `POST /api/v1/matches/{id}/read`: Mark match as read
+
+### Messaging
+- `GET /api/v1/matches/{id}/messages`: Get messages for a match
+- `POST /api/v1/matches/{id}/messages`: Send a message
+- `PUT /api/v1/messages/{id}/read`: Mark message as read
+
+### Preferences
+- `GET /api/v1/preferences`: Get user preferences
+- `PUT /api/v1/preferences`: Update user preferences
+
+### Notifications
+- `GET /api/v1/notifications`: Get notifications
+- `PUT /api/v1/notifications/{id}/read`: Mark notification as read
+- `GET /api/v1/events`: Stream events (SSE)
 
 ## Development Workflow
 1. Use the Makefile for common tasks:
@@ -79,57 +141,18 @@ This project is being built for the VibeCoding Hackathon (May 14, 2025, 4:00-8:0
    - `make start` - Start development servers
    - `make migrate-up` - Run database migrations
    - `make setup-env` - Set up environment with Render PostgreSQL credentials
-   
-2. API structure:
-   - All routes are under `/api/v1/` prefix
-   - Authentication routes: `/api/v1/auth/*`
-   - Profile routes: `/api/v1/profiles/*`
-   - Matching routes: `/api/v1/matches/*`
-   - Messaging routes: `/api/v1/messages/*`
 
-## Supabase Integration
-The project uses Supabase for:
-- User authentication (with JWT)
-- Photo storage
+## Known Issues
+1. Migration error: There's a type mismatch in the database schema. The profiles.id column is UUID but foreign keys referencing it are defined as BIGINT.
+2. Some handler implementations may need updating to match the service layer implementations.
+3. Frontend components need to be implemented to connect with the backend API.
 
-## Integration Notes
-When extending this project, keep in mind:
-1. Authentication flow uses JWT tokens stored in localStorage
-2. API requests should include Authorization header with the token
-3. Frontend routes with `requiresAuth: true` are protected
-4. Database queries use SQL with the standard database/sql package
-5. Vue components follow the Composition API pattern
-6. The project uses a Render-hosted PostgreSQL database
-7. Database connection can be configured via full URL or individual params
-
-## Testing Strategy
-- Backend: Go's testing package for unit tests
-- Frontend: Vitest for component testing
-
-## Cursor Development Guidelines
-When using Cursor with this project, follow these guidelines:
-1. **Keep it simple** - Don't overengineer solutions or add unnecessary complexity
-2. **Reuse existing components** - Check for existing components, utilities, or patterns before creating new ones
-3. **Preserve functionality** - Do not remove or significantly alter existing functionality without confirming with users
-4. **Be consistent** - Follow the established patterns and conventions in the codebase
-5. **Document your changes** - Add clear comments for complex logic and keep documentation updated
-6. **Incremental changes** - Make smaller, focused changes rather than large overhauls
-7. **Consider performance** - Pay attention to potential performance impacts of your changes
-8. **Mobile-first approach** - Ensure all UI changes work well on mobile devices
-9. **Keep this context file updated** - When making significant changes to the project, update this file accordingly
-10. **External asset attribution** - External assets should be credited in code comments, but these credits should not appear in UI or API responses
-
-## Maintaining This Context File
-This context file should be regularly updated to reflect the current state of the project. When making significant changes, please:
-
-1. **Add new features** - Document any new features or endpoints added to the project
-2. **Update tech stack** - If new technologies or libraries are introduced
-3. **Document API changes** - If APIs are changed or extended
-4. **Update workflow processes** - If development workflows change
-5. **Note configuration changes** - If configuration or environment setups are modified
-6. **Update database schema** - If there are changes to the database structure
-
-This ensures that all developers and AI assistants have accurate context about the project.
+## Next Steps
+1. Fix the migration script by ensuring consistent data types across tables
+2. Complete the implementation of API handlers
+3. Build the frontend UI components
+4. Connect the frontend to the backend API
+5. Test the full application flow
 
 ## AI Agent Integration Opportunities
 - Improved matching algorithms based on profile data

@@ -22,32 +22,30 @@ func NewMessageHandler(messageService *services.MessageService) *MessageHandler 
 	}
 }
 
-// GetMessages handles the retrieval of messages for a match
+// GetMessages retrieves messages for a match
 func (h *MessageHandler) GetMessages(w http.ResponseWriter, r *http.Request) {
-	// Get match ID from URL
+	// Get user ID from context (would come from JWT middleware)
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		respondWithError(w, http.StatusBadRequest, "User ID is required")
+		return
+	}
+
+	// Get match ID from path
 	vars := mux.Vars(r)
-	matchID, err := strconv.ParseInt(vars["id"], 10, 64)
+	matchIDStr := vars["id"]
+	matchID, err := strconv.ParseInt(matchIDStr, 10, 64)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid match ID")
 		return
 	}
 
-	// Get user ID from context (would come from JWT middleware)
-	// For demonstration, we'll use a query parameter for now
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
-		respondWithError(w, http.StatusBadRequest, "User ID is required")
-		return
-	}
+	// Get pagination parameters
+	limit := getIntQueryParam(r, "limit", 50)
+	offset := getIntQueryParam(r, "offset", 0)
 
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
-		return
-	}
-
-	// Call service to get messages
-	messages, err := h.messageService.GetMessages(r.Context(), matchID, userID)
+	// Get messages
+	messages, err := h.messageService.GetMessages(r.Context(), userID, matchID, limit, offset)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -56,31 +54,28 @@ func (h *MessageHandler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, messages)
 }
 
-// CreateMessage handles the creation of a message
+// CreateMessage sends a message in a match
 func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
-	// Get match ID from URL
+	// Get user ID from context (would come from JWT middleware)
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		respondWithError(w, http.StatusBadRequest, "User ID is required")
+		return
+	}
+
+	// Get match ID from path
 	vars := mux.Vars(r)
-	matchID, err := strconv.ParseInt(vars["id"], 10, 64)
+	matchIDStr := vars["id"]
+	matchID, err := strconv.ParseInt(matchIDStr, 10, 64)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid match ID")
 		return
 	}
 
-	// Get user ID from context (would come from JWT middleware)
-	// For demonstration, we'll use a query parameter for now
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
-		respondWithError(w, http.StatusBadRequest, "User ID is required")
-		return
+	// Parse request body
+	var input struct {
+		Message string `json:"message"`
 	}
-
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
-		return
-	}
-
-	var input models.MessageInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
@@ -88,17 +83,38 @@ func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Validate input
-	if input.Content == "" {
-		respondWithError(w, http.StatusBadRequest, "Message content is required")
+	if input.Message == "" {
+		respondWithError(w, http.StatusBadRequest, "Message is required")
 		return
 	}
 
-	// Call service to create message
-	message, err := h.messageService.CreateMessage(r.Context(), matchID, userID, input)
+	// Create message input
+	messageInput := models.MessageInput{
+		MatchID: matchID,
+		Message: input.Message,
+	}
+
+	// Send message
+	message, err := h.messageService.SendMessage(r.Context(), userID, messageInput)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, message)
+	respondWithJSON(w, http.StatusOK, message)
+}
+
+// Helper function to get a query parameter as an integer
+func getIntQueryParam(r *http.Request, param string, defaultValue int) int {
+	valueStr := r.URL.Query().Get(param)
+	if valueStr == "" {
+		return defaultValue
+	}
+	
+	value, err := strconv.Atoi(valueStr)
+	if err != nil || value < 0 {
+		return defaultValue
+	}
+	
+	return value
 }

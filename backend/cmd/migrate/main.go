@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -33,7 +34,7 @@ func main() {
 
 	// Check command-line arguments
 	if len(os.Args) < 2 {
-		log.Fatal("Usage: go run cmd/migrate/main.go [up|down|version]")
+		log.Fatal("Usage: go run cmd/migrate/main.go [up|down|version|force <version>]")
 	}
 
 	// Perform the requested migration operation
@@ -57,8 +58,23 @@ func main() {
 			log.Fatalf("Failed to get migration version: %v", err)
 		}
 		log.Printf("Current migration version: %d, Dirty: %v", version, dirty)
+		
+	case "force":
+		if len(os.Args) < 3 {
+			log.Fatal("Usage: go run cmd/migrate/main.go force <version>")
+		}
+		
+		version, err := strconv.ParseUint(os.Args[2], 10, 64)
+		if err != nil {
+			log.Fatalf("Invalid version number: %v", err)
+		}
+		
+		if err := m.Force(int(version)); err != nil {
+			log.Fatalf("Failed to force version: %v", err)
+		}
+		log.Printf("Successfully forced migration version to %d", version)
 
 	default:
-		log.Fatal("Invalid command. Use 'up', 'down', or 'version'")
+		log.Fatal("Invalid command. Use 'up', 'down', 'version', or 'force <version>'")
 	}
 } 

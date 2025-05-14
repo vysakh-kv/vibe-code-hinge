@@ -1,4 +1,4 @@
-.PHONY: setup start start-backend start-frontend build migrate-up migrate-down test help docker-up docker-down docker-logs docker-migrate setup-env update-context backend-logs clean-logs start-backend-debug
+.PHONY: setup start start-backend start-frontend build migrate-up migrate-down test help docker-up docker-down docker-logs docker-migrate setup-env update-context backend-logs clean-logs start-backend-debug generate-postman
 
 # Variables
 LOG_LEVEL ?= info
@@ -23,16 +23,16 @@ setup-frontend:
 
 # Setup environment with Render PostgreSQL credentials
 setup-env:
-	@echo "Setting up Render PostgreSQL environment variables..."
+	@echo "Setting up environment variables..."
 	@echo "# Database" > backend/.env
 	@echo "# Option 1: Full connection string" >> backend/.env
-	@echo "DATABASE_URL=postgresql://vibe_code_hinge_user:b9NCFB2Xdw70qlDjlucV3fuuJ30idGdz@dpg-d0i7eb24d50c73b63cfg-a.oregon-postgres.render.com/vibe_code_hinge?sslmode=require" >> backend/.env
+	@echo "DATABASE_URL=postgresql://username:password@host.example.com/database?sslmode=require" >> backend/.env
 	@echo "" >> backend/.env
 	@echo "# Option 2: Individual connection parameters" >> backend/.env
-	@echo "DB_USER=vibe_code_hinge_user" >> backend/.env
-	@echo "DB_PASSWORD=b9NCFB2Xdw70qlDjlucV3fuuJ30idGdz" >> backend/.env
-	@echo "DB_HOST=dpg-d0i7eb24d50c73b63cfg-a.oregon-postgres.render.com" >> backend/.env
-	@echo "DB_NAME=vibe_code_hinge" >> backend/.env
+	@echo "DB_USER=your_database_user" >> backend/.env
+	@echo "DB_PASSWORD=your_database_password" >> backend/.env
+	@echo "DB_HOST=your_database_host.example.com" >> backend/.env
+	@echo "DB_NAME=your_database_name" >> backend/.env
 	@echo "DB_PORT=5432" >> backend/.env
 	@echo "DB_SSL_MODE=require" >> backend/.env
 	@echo "" >> backend/.env
@@ -40,18 +40,18 @@ setup-env:
 	@echo "PORT=8080" >> backend/.env
 	@echo "" >> backend/.env
 	@echo "# Supabase" >> backend/.env
-	@echo "SUPABASE_URL=https://asydpwsbayeejyhkxeih.supabase.co" >> backend/.env
-	@echo "SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzeWRwd3NiYXllZWp5aGt4ZWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyMjA3OTcsImV4cCI6MjA2Mjc5Njc5N30.dcUCQM2poNFWdlEaQTjNPKNq2eNt-hsq-s1Rx_gUZsM" >> backend/.env
+	@echo "SUPABASE_URL=https://your-supabase-project.supabase.co" >> backend/.env
+	@echo "SUPABASE_KEY=your_supabase_key" >> backend/.env
 	@echo "" >> backend/.env
 	@echo "# JWT" >> backend/.env
 	@echo "JWT_SECRET=your_jwt_secret_here" >> backend/.env
 	@echo "JWT_EXPIRY=24h" >> backend/.env
-	@echo "Environment file created successfully with Render PostgreSQL credentials."
+	@echo "Environment file created successfully. Please replace the placeholder values with your actual credentials."
 	@echo "Setting up frontend environment variables..."
 	@echo "VITE_API_URL=http://localhost:8080/api/v1" > frontend/.env
-	@echo "VITE_SUPABASE_URL=https://asydpwsbayeejyhkxeih.supabase.co" >> frontend/.env
-	@echo "VITE_SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzeWRwd3NiYXllZWp5aGt4ZWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyMjA3OTcsImV4cCI6MjA2Mjc5Njc5N30.dcUCQM2poNFWdlEaQTjNPKNq2eNt-hsq-s1Rx_gUZsM" >> frontend/.env
-	@echo "Frontend environment file created successfully."
+	@echo "VITE_SUPABASE_URL=https://your-supabase-project.supabase.co" >> frontend/.env
+	@echo "VITE_SUPABASE_KEY=your_supabase_key" >> frontend/.env
+	@echo "Frontend environment file created successfully. Please replace the placeholder values with your actual credentials."
 
 # Remind to update LLM context file
 update-context:
@@ -139,13 +139,18 @@ backend-logs:
 	@echo "Viewing backend logs in real-time..."
 	@tail -f logs/backend.log
 
+# Generate Postman collection
+generate-postman:
+	@echo "Generating Postman collection..."
+	@./scripts/generate_postman.sh
+
 # Show help
 help:
 	@echo "Available commands:"
 	@echo "  make setup                - Set up the project (both backend and frontend)"
 	@echo "  make setup-backend        - Set up the backend only"
 	@echo "  make setup-frontend       - Set up the frontend only"
-	@echo "  make setup-env            - Set up environment with Render PostgreSQL credentials"
+	@echo "  make setup-env            - Set up environment with placeholder credentials"
 	@echo "  make update-context       - Reminder to update the LLM context file after changes"
 	@echo "  make start                - Start both backend and frontend development servers"
 	@echo "  make start-backend        - Start the backend server only"
@@ -163,6 +168,7 @@ help:
 	@echo "  make docker-down          - Stop all services with Docker Compose"
 	@echo "  make docker-logs          - Show logs from all services"
 	@echo "  make docker-migrate       - Run database migrations in Docker"
+	@echo "  make generate-postman     - Generate Postman collection from API docs"
 	@echo "  make backend-logs         - View backend logs in real-time"
 	@echo "  make clean-logs           - Remove all log files"
 	@echo "  make help                 - Show this help message"

@@ -156,6 +156,22 @@ When working on this project, please follow our development guidelines:
 
 These guidelines help maintain consistency and quality across the codebase.
 
+### Keeping the LLM Context Updated
+
+It's critical to keep the `llm_context.txt` file updated with the current state of the project. This file provides essential context for AI assistants and other developers. After making significant changes to the project:
+
+```
+# Update the LLM context file
+make update-context
+```
+
+Update the file when:
+- Adding new features or components
+- Changing APIs or workflows
+- Introducing new technologies
+- Modifying database schema
+- Changing project architecture
+
 ## Project Status
 
 This is an MVP (Minimum Viable Product) version of the application.

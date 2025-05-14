@@ -36,6 +36,13 @@ This document provides guidelines for developers using Cursor AI when working on
 - Follow Go's idiomatic practices for backend
 - Maintain consistent naming conventions across the codebase
 
+### 6. Keep Context Documentation Updated
+
+- **CRITICAL**: Update `llm_context.txt` when making significant changes to the project
+- This file provides essential context for AI tools and new developers
+- Document new features, endpoints, tech stack changes, and other important developments
+- Accurate context documentation leads to better assistance and more efficient development
+
 ## Practical Guidelines for Cursor Use
 
 ### When Generating Code
@@ -55,6 +62,7 @@ This document provides guidelines for developers using Cursor AI when working on
 1. **Check Requirements**: Ensure you understand the feature requirements completely
 2. **Leverage Existing Code**: Use or extend existing components and utilities where possible
 3. **Consider Edge Cases**: Account for error states, loading states, and edge cases
+4. **Update Context**: Add new features to the `llm_context.txt` file
 
 ### When Fixing Bugs
 
@@ -62,10 +70,25 @@ This document provides guidelines for developers using Cursor AI when working on
 2. **Minimal Changes**: Make the smallest change necessary to fix the issue
 3. **Add Tests**: When possible, add tests to prevent regression
 
+### When To Update llm_context.txt
+
+Update the `llm_context.txt` file when:
+
+1. **Adding new features or components**
+2. **Changing or extending APIs**
+3. **Introducing new technology or libraries**
+4. **Changing project architecture or structure**
+5. **Modifying development workflow or processes**
+6. **Updating database schema**
+7. **Adding or changing configuration requirements**
+
+This keeps AI agents and new developers informed about the current state of the project.
+
 ## Project-Specific Guidelines
 
 - Frontend components should follow the existing naming and styling conventions
 - Backend endpoints should follow RESTful design principles
 - Mobile-first approach for all UI development
 - Document any new environment variables or configuration options
-- Keep sensitive information out of the codebase 
+- Keep sensitive information out of the codebase
+- Utilize the Render PostgreSQL database with the provided credentials 

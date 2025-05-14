@@ -1,4 +1,4 @@
-.PHONY: setup start start-backend start-frontend build migrate-up migrate-down test help docker-up docker-down docker-logs docker-migrate setup-env
+.PHONY: setup start start-backend start-frontend build migrate-up migrate-down test help docker-up docker-down docker-logs docker-migrate setup-env update-context
 
 # Default target
 all: help
@@ -45,6 +45,22 @@ setup-env:
 	@echo "JWT_EXPIRY=24h" >> backend/.env
 	@echo "Environment file created successfully with Render PostgreSQL credentials."
 
+# Remind to update LLM context file
+update-context:
+	@echo "\033[1;33m┌────────────────────────────────────────────────┐"
+	@echo "│ REMINDER: Update the LLM Context File              │"
+	@echo "├────────────────────────────────────────────────┤"
+	@echo "│                                                │"
+	@echo "│ If you've made significant changes, please     │"
+	@echo "│ update the llm_context.txt file to help AI     │"
+	@echo "│ assistants and other developers understand     │"
+	@echo "│ the current state of the project.              │"
+	@echo "│                                                │"
+	@echo "│ Opening llm_context.txt for editing...         │"
+	@echo "└────────────────────────────────────────────────┘\033[0m"
+	@sleep 2
+	@${EDITOR} llm_context.txt || echo "Could not open editor. Please edit llm_context.txt manually."
+
 # Start development servers
 start: start-backend start-frontend
 
@@ -57,7 +73,7 @@ start-frontend:
 	cd frontend && npm run dev
 
 # Build for production
-build: build-backend build-frontend
+build: build-backend build-frontend update-context
 
 build-backend:
 	@echo "Building backend..."
@@ -113,6 +129,7 @@ help:
 	@echo "  make setup-backend   - Set up the backend only"
 	@echo "  make setup-frontend  - Set up the frontend only"
 	@echo "  make setup-env       - Set up environment with Render PostgreSQL credentials"
+	@echo "  make update-context  - Reminder to update the LLM context file after changes"
 	@echo "  make start           - Start both backend and frontend development servers"
 	@echo "  make start-backend   - Start the backend server only"
 	@echo "  make start-frontend  - Start the frontend server only"

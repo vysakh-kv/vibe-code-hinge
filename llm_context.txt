@@ -33,6 +33,7 @@ Vibe is a Hinge-inspired dating app MVP built with Go backend and Vue.js fronten
 - Basic routing setup
 - Database schema and migrations
 - Environment configuration
+- Integration with Render PostgreSQL database
 
 ## Planned Features
 - User profile creation and editing
@@ -56,6 +57,7 @@ Vibe is a Hinge-inspired dating app MVP built with Go backend and Vue.js fronten
    - `make setup` - Initial project setup
    - `make start` - Start development servers
    - `make migrate-up` - Run database migrations
+   - `make setup-env` - Set up environment with Render PostgreSQL credentials
    
 2. API structure:
    - All routes are under `/api/v1/` prefix
@@ -76,6 +78,8 @@ When extending this project, keep in mind:
 3. Frontend routes with `requiresAuth: true` are protected
 4. Database queries use SQL with the standard database/sql package
 5. Vue components follow the Composition API pattern
+6. The project uses a Render-hosted PostgreSQL database
+7. Database connection can be configured via full URL or individual params
 
 ## Testing Strategy
 - Backend: Go's testing package for unit tests
@@ -91,6 +95,19 @@ When using Cursor with this project, follow these guidelines:
 6. **Incremental changes** - Make smaller, focused changes rather than large overhauls
 7. **Consider performance** - Pay attention to potential performance impacts of your changes
 8. **Mobile-first approach** - Ensure all UI changes work well on mobile devices
+9. **Keep this context file updated** - When making significant changes to the project, update this file accordingly
+
+## Maintaining This Context File
+This context file should be regularly updated to reflect the current state of the project. When making significant changes, please:
+
+1. **Add new features** - Document any new features or endpoints added to the project
+2. **Update tech stack** - If new technologies or libraries are introduced
+3. **Document API changes** - If APIs are changed or extended
+4. **Update workflow processes** - If development workflows change
+5. **Note configuration changes** - If configuration or environment setups are modified
+6. **Update database schema** - If there are changes to the database structure
+
+This ensures that all developers and AI assistants have accurate context about the project.
 
 ## AI Agent Integration Opportunities
 - Improved matching algorithms based on profile data

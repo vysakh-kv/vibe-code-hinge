@@ -56,7 +56,7 @@ const navigateToLogin = () => {
       
       <button 
         class="create-account-button" 
-        @click="router.push('/register-form')"
+        @click="router.push('/enter-number')"
         :disabled="loading"
       >
         Create account

@@ -1,3 +1,9 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
+
 <template>
   <div class="drink-input-screen">
     <!-- Progress indicator -->
@@ -46,7 +52,7 @@
 
     <!-- Next button -->
     <div class="next-button" 
-         @click="selectedOption ? goToNextStep() : null"
+         @click="selectedOption ? router.push('/input-photos') : null"
          :class="{ 'enabled': selectedOption }">
       <span class="next-icon">›</span>
     </div>

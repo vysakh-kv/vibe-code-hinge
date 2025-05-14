@@ -1,3 +1,9 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
+
 <template>
   <div class="photos-input-screen">
     <!-- Progress indicator -->
@@ -64,7 +70,7 @@
 
     <!-- Next button -->
     <div class="next-button" 
-         @click="isReadyToProgress ? goToNextStep() : null"
+         @click="isReadyToProgress ? router.push('/input-prompt') : null"
          :class="{ 'enabled': isReadyToProgress }">
       <span class="next-icon">›</span>
     </div>

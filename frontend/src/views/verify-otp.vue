@@ -1,3 +1,9 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
+
 <template>
   <div class="phone-screen">
     <!-- Header with close icon -->
@@ -42,6 +48,7 @@
       <button 
         class="arrow-circle" 
         :disabled="!isOtpComplete"
+        @click="router.push('/input-name')"
         :style="{
           'align-self': 'flex-end', 
           'width': '50px', 

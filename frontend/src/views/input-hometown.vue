@@ -1,3 +1,9 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
+
 <template>
   <div class="name-input-screen">
     <!-- Header notice -->
@@ -35,7 +41,7 @@
     </div>
     
     <!-- Next button -->
-    <div class="next-button" @click="goToNextStep" :class="{ 'button-disabled': firstName.length <= 3 }">
+    <div class="next-button" @click="router.push('/input-work')" :class="{ 'button-disabled': firstName.length <= 3 }">
       <span class="next-icon">›</span>
     </div>
 

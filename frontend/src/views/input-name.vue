@@ -1,3 +1,9 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
+
 <template>
   <div class="name-input-screen">
     <!-- Header notice -->
@@ -48,7 +54,7 @@
     </div>
     
     <!-- Next button -->
-    <div class="next-button" @click="goToNextStep" :class="{ 'button-disabled': firstName.length <= 3 }">
+    <div class="next-button" @click="router.push('/input-email')" :class="{ 'button-disabled': firstName.length <= 3 }">
       <span class="next-icon">›</span>
     </div>
 
@@ -68,6 +74,7 @@ export default {
   },
   methods: {
     goToNextStep() {
+      router.push('/input-email');
       if (this.firstName.trim().length > 3) {
         // Navigate to next step
         this.$emit('name-submitted', { firstName: this.firstName, lastName: this.lastName });

@@ -17,7 +17,7 @@ const InputPhotos = () => import('../views/input-photos.vue');
 const InputPrompt = () => import('../views/input-prompt.vue');
 // const Register = () => import('../views/Register.vue');
 // const Onboarding = () => import('../views/Onboarding.vue');
-// const Discover = () => import('../views/Discover.vue');
+const Discover = () => import('../views/Discover.vue');
 // const Matches = () => import('../views/Matches.vue');
 // const Messages = () => import('../views/Messages.vue');
 const Profile = () => import('../views/Profile.vue');
@@ -114,12 +114,12 @@ const routes = [
   //   component: Onboarding,
   //   meta: { requiresAuth: true }
   // },
-  // {
-  //   path: '/discover',
-  //   name: 'Discover',
-  //   component: Discover,
-  //   meta: { requiresAuth: true }
-  // },
+  {
+    path: '/discover',
+    name: 'Discover',
+    component: Discover,
+    meta: { requiresAuth: false }
+  },
   // {
   //   path: '/matches',
   //   name: 'Matches',

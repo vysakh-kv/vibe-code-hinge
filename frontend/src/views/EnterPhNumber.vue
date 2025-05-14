@@ -1,3 +1,8 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
 <template>
   <div class="phone-screen">
     <!-- Header with close icon -->
@@ -38,6 +43,7 @@
       <button 
         class="arrow-circle" 
         :disabled="!isPhoneNumberValid"
+        @click="router.push('/verify-otp')"
         :style="{
           'align-self': 'flex-end', 
           'width': '50px', 

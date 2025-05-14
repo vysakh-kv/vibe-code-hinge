@@ -1,3 +1,9 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
+
 <template>
   <div class="name-input-screen">
     <!-- Header notice -->
@@ -67,7 +73,7 @@
     </div>
     
     <!-- Next button -->
-    <div class="next-button" @click="goToNextStep" :class="{ 'button-disabled': !allPromptsCompleted }">
+    <div class="next-button" @click="router.push('/profile')">
       <span class="next-icon">›</span>
     </div>
 

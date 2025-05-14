@@ -88,6 +88,13 @@ func main() {
 	router.Use(corsMiddleware)
 	router.Use(loggingMiddleware)
 
+	// Root health check endpoint
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok","service":"vibe-dating-api"}`))
+	}).Methods("GET")
+
 	// API routes
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
 	routes.SetupRoutes(apiRouter, db)

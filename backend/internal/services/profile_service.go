@@ -11,13 +11,13 @@ import (
 
 // ProfileService handles profile-related business logic
 type ProfileService struct {
-	db *sql.DB
+	BaseService
 }
 
 // NewProfileService creates a new profile service
 func NewProfileService(db *sql.DB) *ProfileService {
 	return &ProfileService{
-		db: db,
+		BaseService: NewBaseService(db),
 	}
 }
 
@@ -25,7 +25,7 @@ func NewProfileService(db *sql.DB) *ProfileService {
 func (s *ProfileService) GetProfileByID(ctx context.Context, id int64) (*models.Profile, error) {
 	// Get profile
 	var profile models.Profile
-	err := s.db.QueryRowContext(
+	err := s.GetDB().QueryRowContext(
 		ctx,
 		`SELECT id, user_id, name, bio, date_of_birth, gender, location, occupation, created_at, updated_at 
 		FROM profiles WHERE id = $1`,
@@ -43,7 +43,7 @@ func (s *ProfileService) GetProfileByID(ctx context.Context, id int64) (*models.
 	}
 
 	// Get photos
-	rows, err := s.db.QueryContext(
+	rows, err := s.GetDB().QueryContext(
 		ctx,
 		`SELECT id, profile_id, url, is_primary, created_at 
 		FROM photos WHERE profile_id = $1 ORDER BY is_primary DESC, created_at ASC`,
@@ -80,7 +80,7 @@ func (s *ProfileService) CreateOrUpdateProfile(ctx context.Context, userID int64
 		return nil, errors.New("invalid date format for date of birth")
 	}
 
-	tx, err := s.db.BeginTx(ctx, nil)
+	tx, err := s.GetDB().BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -3,9 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -15,9 +16,20 @@ import (
 )
 
 func main() {
+	// Configure structured logging
+	logLevel := getLogLevel()
+	logHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level:     logLevel,
+		AddSource: true,
+	})
+	logger := slog.New(logHandler)
+	slog.SetDefault(logger)
+
+	slog.Info("Starting application", "log_level", logLevel.String())
+
 	// Load environment variables
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables")
+		slog.Info("No .env file found, using environment variables")
 	}
 
 	// Database connection
@@ -34,7 +46,8 @@ func main() {
 		dbSSLMode := os.Getenv("DB_SSL_MODE")
 
 		if dbUser == "" || dbPassword == "" || dbHost == "" || dbName == "" {
-			log.Fatal("Database connection parameters are not set properly")
+			slog.Error("Database connection parameters are not set properly")
+			os.Exit(1)
 		}
 
 		if dbPort == "" {
@@ -50,26 +63,30 @@ func main() {
 	}
 
 	if dbURL == "" {
-		log.Fatal("DATABASE_URL or individual database parameters must be set")
+		slog.Error("DATABASE_URL or individual database parameters must be set")
+		os.Exit(1)
 	}
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
+		slog.Error("Error connecting to database", "error", err)
+		os.Exit(1)
 	}
 	defer db.Close()
 
 	// Check database connection
 	if err := db.Ping(); err != nil {
-		log.Fatalf("Error pinging database: %v", err)
+		slog.Error("Error pinging database", "error", err)
+		os.Exit(1)
 	}
-	log.Println("Connected to database successfully")
+	slog.Info("Connected to database successfully")
 
 	// Initialize router
 	router := mux.NewRouter()
-
-	// Middleware for CORS
+	
+	// Middleware for CORS and logging
 	router.Use(corsMiddleware)
+	router.Use(loggingMiddleware)
 
 	// API routes
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
@@ -88,9 +105,28 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Printf("Server starting on port %s", port)
+	slog.Info("Server starting", "port", port)
 	if err := srv.ListenAndServe(); err != nil {
-		log.Fatalf("Error starting server: %v", err)
+		slog.Error("Error starting server", "error", err)
+		os.Exit(1)
+	}
+}
+
+// getLogLevel returns the appropriate slog.Level based on the LOG_LEVEL environment variable
+func getLogLevel() slog.Level {
+	levelStr := strings.ToLower(os.Getenv("LOG_LEVEL"))
+	
+	switch levelStr {
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "warn":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		return slog.LevelInfo // Default to info level
 	}
 }
 
@@ -110,3 +146,43 @@ func corsMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// loggingMiddleware logs HTTP requests
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		// Create a response wrapper to capture the status code
+		wrapper := newResponseWriter(w)
+		
+		// Call the next handler
+		next.ServeHTTP(wrapper, r)
+		
+		// Log the request details
+		slog.Info("Request completed",
+			"method", r.Method,
+			"path", r.URL.Path,
+			"status", wrapper.status,
+			"duration_ms", time.Since(start).Milliseconds(),
+			"remote_addr", r.RemoteAddr,
+			"user_agent", r.UserAgent(),
+		)
+	})
+}
+
+// responseWriter is a wrapper for http.ResponseWriter that captures the status code
+type responseWriter struct {
+	http.ResponseWriter
+	status int
+}
+
+// newResponseWriter creates a new responseWriter
+func newResponseWriter(w http.ResponseWriter) *responseWriter {
+	return &responseWriter{w, http.StatusOK}
+}
+
+// WriteHeader captures the status code
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.status = code
+	rw.ResponseWriter.WriteHeader(code)
+} 

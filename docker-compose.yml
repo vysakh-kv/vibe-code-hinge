@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: vibe-postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: hinge_clone
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: vibe-backend
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_SSL_MODE=${DB_SSL_MODE:-require}
+      - PORT=8080
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - JWT_SECRET=${JWT_SECRET:-dev_jwt_secret}
+      - JWT_EXPIRY=${JWT_EXPIRY:-24h}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: go run cmd/api/main.go
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: vibe-frontend
+    environment:
+      - VITE_API_URL=http://localhost:8080/api/v1
+      - VITE_SUPABASE_URL=${SUPABASE_URL}
+      - VITE_SUPABASE_KEY=${SUPABASE_KEY}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:

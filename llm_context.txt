@@ -1,0 +1,100 @@
+# Vibe - Dating App Project Context for LLM Agents
+
+## Project Overview
+Vibe is a Hinge-inspired dating app MVP built with Go backend and Vue.js frontend. The project aims to implement the core features of a dating app including user authentication, profile management, matching, and messaging.
+
+## Tech Stack
+- **Backend**: Go with Gorilla Mux, PostgreSQL database
+- **Frontend**: Vue 3, Vue Router, Pinia, Vite
+- **Authentication & Storage**: Supabase
+- **Deployment**: Render (API + PostgreSQL)
+
+## Project Structure
+- `/backend` - Go API server
+  - `/cmd/api` - Main application entry point
+  - `/cmd/migrate` - Database migration utilities
+  - `/internal/handlers` - API request handlers
+  - `/internal/models` - Data models
+  - `/internal/db` - Database access
+  - `/internal/middleware` - HTTP middleware
+  - `/migrations/postgres` - Database migration files
+  - `/configs` - Configuration files
+  
+- `/frontend` - Vue.js application
+  - `/src/views` - Vue pages
+  - `/src/components` - Reusable Vue components
+  - `/src/stores` - Pinia state stores
+  - `/src/services` - API services
+  - `/src/router` - Vue Router configuration
+  - `/src/assets` - Static assets
+
+## Key Features Implemented
+- User authentication (login/register)
+- Basic routing setup
+- Database schema and migrations
+- Environment configuration
+
+## Planned Features
+- User profile creation and editing
+- Discovery/swiping system
+- Matching algorithm
+- In-app messaging
+- User preferences
+- Profile photos
+
+## Database Schema
+- **users**: User authentication info
+- **profiles**: User profile details
+- **photos**: User profile photos
+- **matches**: Matched users
+- **swipes**: Record of swipes between users
+- **messages**: Messages between users
+- **user_preferences**: User matching preferences
+
+## Development Workflow
+1. Use the Makefile for common tasks:
+   - `make setup` - Initial project setup
+   - `make start` - Start development servers
+   - `make migrate-up` - Run database migrations
+   
+2. API structure:
+   - All routes are under `/api/v1/` prefix
+   - Authentication routes: `/api/v1/auth/*`
+   - Profile routes: `/api/v1/profiles/*`
+   - Matching routes: `/api/v1/matches/*`
+   - Messaging routes: `/api/v1/messages/*`
+
+## Supabase Integration
+The project uses Supabase for:
+- User authentication (with JWT)
+- Photo storage
+
+## Integration Notes
+When extending this project, keep in mind:
+1. Authentication flow uses JWT tokens stored in localStorage
+2. API requests should include Authorization header with the token
+3. Frontend routes with `requiresAuth: true` are protected
+4. Database queries use SQL with the standard database/sql package
+5. Vue components follow the Composition API pattern
+
+## Testing Strategy
+- Backend: Go's testing package for unit tests
+- Frontend: Vitest for component testing
+
+## Cursor Development Guidelines
+When using Cursor with this project, follow these guidelines:
+1. **Keep it simple** - Don't overengineer solutions or add unnecessary complexity
+2. **Reuse existing components** - Check for existing components, utilities, or patterns before creating new ones
+3. **Preserve functionality** - Do not remove or significantly alter existing functionality without confirming with users
+4. **Be consistent** - Follow the established patterns and conventions in the codebase
+5. **Document your changes** - Add clear comments for complex logic and keep documentation updated
+6. **Incremental changes** - Make smaller, focused changes rather than large overhauls
+7. **Consider performance** - Pay attention to potential performance impacts of your changes
+8. **Mobile-first approach** - Ensure all UI changes work well on mobile devices
+
+## AI Agent Integration Opportunities
+- Improved matching algorithms based on profile data
+- Conversation starters generation
+- Profile improvement suggestions
+- Content moderation for photos and messages
+- Activity analysis and insights 

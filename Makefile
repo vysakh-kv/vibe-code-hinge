@@ -1,0 +1,131 @@
+.PHONY: setup start start-backend start-frontend build migrate-up migrate-down test help docker-up docker-down docker-logs docker-migrate setup-env
+
+# Default target
+all: help
+
+# Setup the project
+setup: setup-backend setup-frontend
+
+setup-backend:
+	@echo "Setting up backend..."
+	cd backend && go mod download
+	cp backend/.env.example backend/.env
+	@echo "Backend setup complete! Remember to update the .env file with your credentials."
+
+setup-frontend:
+	@echo "Setting up frontend..."
+	cd frontend && npm install
+	cp frontend/.env.example frontend/.env
+	@echo "Frontend setup complete! Remember to update the .env file with your credentials."
+
+# Setup environment with Render PostgreSQL credentials
+setup-env:
+	@echo "Setting up Render PostgreSQL environment variables..."
+	@echo "# Database" > backend/.env
+	@echo "# Option 1: Full connection string" >> backend/.env
+	@echo "DATABASE_URL=postgresql://vibe_code_hinge_user:b9NCFB2Xdw70qlDjlucV3fuuJ30idGdz@dpg-d0i7eb24d50c73b63cfg-a.oregon-postgres.render.com/vibe_code_hinge?sslmode=require" >> backend/.env
+	@echo "" >> backend/.env
+	@echo "# Option 2: Individual connection parameters" >> backend/.env
+	@echo "DB_USER=vibe_code_hinge_user" >> backend/.env
+	@echo "DB_PASSWORD=b9NCFB2Xdw70qlDjlucV3fuuJ30idGdz" >> backend/.env
+	@echo "DB_HOST=dpg-d0i7eb24d50c73b63cfg-a.oregon-postgres.render.com" >> backend/.env
+	@echo "DB_NAME=vibe_code_hinge" >> backend/.env
+	@echo "DB_PORT=5432" >> backend/.env
+	@echo "DB_SSL_MODE=require" >> backend/.env
+	@echo "" >> backend/.env
+	@echo "# Server" >> backend/.env
+	@echo "PORT=8080" >> backend/.env
+	@echo "" >> backend/.env
+	@echo "# Supabase" >> backend/.env
+	@echo "SUPABASE_URL=" >> backend/.env
+	@echo "SUPABASE_KEY=" >> backend/.env
+	@echo "" >> backend/.env
+	@echo "# JWT" >> backend/.env
+	@echo "JWT_SECRET=your_jwt_secret_here" >> backend/.env
+	@echo "JWT_EXPIRY=24h" >> backend/.env
+	@echo "Environment file created successfully with Render PostgreSQL credentials."
+
+# Start development servers
+start: start-backend start-frontend
+
+start-backend:
+	@echo "Starting backend server..."
+	cd backend && go run cmd/api/main.go
+
+start-frontend:
+	@echo "Starting frontend development server..."
+	cd frontend && npm run dev
+
+# Build for production
+build: build-backend build-frontend
+
+build-backend:
+	@echo "Building backend..."
+	cd backend && go build -o bin/api cmd/api/main.go
+	@echo "Backend build complete!"
+
+build-frontend:
+	@echo "Building frontend..."
+	cd frontend && npm run build
+	@echo "Frontend build complete!"
+
+# Database migrations
+migrate-up:
+	@echo "Running database migrations up..."
+	cd backend && go run cmd/migrate/main.go up
+
+migrate-down:
+	@echo "Running database migrations down..."
+	cd backend && go run cmd/migrate/main.go down
+
+# Run tests
+test: test-backend test-frontend
+
+test-backend:
+	@echo "Running backend tests..."
+	cd backend && go test ./...
+
+test-frontend:
+	@echo "Running frontend tests..."
+	cd frontend && npm test
+
+# Docker commands
+docker-up:
+	@echo "Starting all services with Docker Compose..."
+	docker-compose up -d
+
+docker-down:
+	@echo "Stopping all services with Docker Compose..."
+	docker-compose down
+
+docker-logs:
+	@echo "Showing logs from all services..."
+	docker-compose logs -f
+
+docker-migrate:
+	@echo "Running database migrations in Docker..."
+	docker-compose exec backend go run cmd/migrate/main.go up
+
+# Show help
+help:
+	@echo "Available commands:"
+	@echo "  make setup           - Set up the project (both backend and frontend)"
+	@echo "  make setup-backend   - Set up the backend only"
+	@echo "  make setup-frontend  - Set up the frontend only"
+	@echo "  make setup-env       - Set up environment with Render PostgreSQL credentials"
+	@echo "  make start           - Start both backend and frontend development servers"
+	@echo "  make start-backend   - Start the backend server only"
+	@echo "  make start-frontend  - Start the frontend server only"
+	@echo "  make build           - Build both backend and frontend for production"
+	@echo "  make build-backend   - Build the backend only"
+	@echo "  make build-frontend  - Build the frontend only"
+	@echo "  make migrate-up      - Run database migrations up"
+	@echo "  make migrate-down    - Run database migrations down"
+	@echo "  make test            - Run all tests"
+	@echo "  make test-backend    - Run backend tests only"
+	@echo "  make test-frontend   - Run frontend tests only"
+	@echo "  make docker-up       - Start all services with Docker Compose"
+	@echo "  make docker-down     - Stop all services with Docker Compose"
+	@echo "  make docker-logs     - Show logs from all services"
+	@echo "  make docker-migrate  - Run database migrations in Docker"
+	@echo "  make help            - Show this help message" 

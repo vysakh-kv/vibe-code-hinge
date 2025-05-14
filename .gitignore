@@ -1,0 +1,54 @@
+# IDE files
+.idea/
+.vscode/
+*.code-workspace
+.DS_Store
+
+# Backend
+/backend/vendor/
+/backend/.env
+/backend/tmp/
+/backend/bin/
+/backend/*.log
+
+# Frontend
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+/frontend/coverage/
+/frontend/.cache/
+/frontend/.pnpm-debug.log
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/.pnpm-store/
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Dependency directories
+node_modules/
+
+# dotenv environment variable files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Supabase
+.supabase/ 
